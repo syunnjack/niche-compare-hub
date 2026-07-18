@@ -8,7 +8,7 @@ Recommended repository name: `niche-compare-hub`
 
 ## Domain candidates
 
-First candidate: `nichehikaku.jp`
+Confirmed domain: `nichehikaku.jp`
 
 Other candidates:
 
