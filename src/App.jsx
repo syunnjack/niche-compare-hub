@@ -1,214 +1,87 @@
 import { useMemo, useState } from 'react'
 import './App.css'
 
-const saveKey = 'niche-compare-hub.saved'
-const postKey = 'niche-compare-hub.posts'
-const items = [
-  {
-    "id": "niche-compare-hub-1",
-    "title": "名古屋 宿比較 seed",
-    "area": "名古屋",
-    "category": "宿比較",
-    "score": 94,
-    "summary": "喫煙可ホテル、深夜漫画喫茶、遠征宿、レトロ店、趣味施設など狭い条件に特化した比較/レビュー/クーポンサイト。 初期データとして、検索意図、UGC、送客導線を同じ画面で確認できるようにしています。",
-    "tags": [
-      "宿比較",
-      "名古屋",
-      "UGC",
-      "SEO/AIO"
-    ],
-    "routes": [
-      "成果報酬アフィリエイト",
-      "比較枠広告",
-      "クーポン送客"
-    ],
-    "revenue": "成果報酬アフィリエイト"
-  },
-  {
-    "id": "niche-compare-hub-2",
-    "title": "東京 深夜営業 seed",
-    "area": "東京",
-    "category": "深夜営業",
-    "score": 90,
-    "summary": "喫煙可ホテル、深夜漫画喫茶、遠征宿、レトロ店、趣味施設など狭い条件に特化した比較/レビュー/クーポンサイト。 初期データとして、検索意図、UGC、送客導線を同じ画面で確認できるようにしています。",
-    "tags": [
-      "深夜営業",
-      "東京",
-      "UGC",
-      "SEO/AIO"
-    ],
-    "routes": [
-      "比較枠広告",
-      "クーポン送客",
-      "有料ランキング"
-    ],
-    "revenue": "比較枠広告"
-  },
-  {
-    "id": "niche-compare-hub-3",
-    "title": "大阪 喫煙可 seed",
-    "area": "大阪",
-    "category": "喫煙可",
-    "score": 86,
-    "summary": "喫煙可ホテル、深夜漫画喫茶、遠征宿、レトロ店、趣味施設など狭い条件に特化した比較/レビュー/クーポンサイト。 初期データとして、検索意図、UGC、送客導線を同じ画面で確認できるようにしています。",
-    "tags": [
-      "喫煙可",
-      "大阪",
-      "UGC",
-      "SEO/AIO"
-    ],
-    "routes": [
-      "クーポン送客",
-      "有料ランキング",
-      "レビュー分析レポート"
-    ],
-    "revenue": "クーポン送客"
-  },
-  {
-    "id": "niche-compare-hub-4",
-    "title": "静岡 趣味施設 seed",
-    "area": "静岡",
-    "category": "趣味施設",
-    "score": 82,
-    "summary": "喫煙可ホテル、深夜漫画喫茶、遠征宿、レトロ店、趣味施設など狭い条件に特化した比較/レビュー/クーポンサイト。 初期データとして、検索意図、UGC、送客導線を同じ画面で確認できるようにしています。",
-    "tags": [
-      "趣味施設",
-      "静岡",
-      "UGC",
-      "SEO/AIO"
-    ],
-    "routes": [
-      "有料ランキング",
-      "レビュー分析レポート",
-      "成果報酬アフィリエイト"
-    ],
-    "revenue": "有料ランキング"
-  }
+const municipalities = ['新宿区', '横浜市', '名古屋市', '大阪市', '福岡市']
+const models = [
+  { id: 'prius-60', maker: 'トヨタ', name: 'プリウス 60系', year: '2023年〜', demand: 92, note: 'ハイブリッド車の査定実績を確認' },
+  { id: 'n-box-jf5', maker: 'ホンダ', name: 'N-BOX JF5/6', year: '2023年〜', demand: 89, note: '軽自動車専門店を含めて比較' },
+  { id: 'serena-c28', maker: '日産', name: 'セレナ C28', year: '2022年〜', demand: 86, note: 'ミニバン需要と装備差を確認' },
+  { id: 'jimny-jb64', maker: 'スズキ', name: 'ジムニー JB64', year: '2018年〜', demand: 95, note: 'カスタム部品を含む査定に対応' },
 ]
-const revenuePlans = [
-  "成果報酬アフィリエイト",
-  "比較枠広告",
-  "クーポン送客",
-  "有料ランキング",
-  "レビュー分析レポート"
+const services = [
+  { id: 'direct', name: '地域対応・直接査定', type: '少ない連絡で進めたい', score: 94, strengths: ['地域対応店を比較', '出張査定', '契約前に条件確認'], action: '対応条件を確認' },
+  { id: 'auction', name: 'オークション比較型', type: '価格を競わせたい', score: 91, strengths: ['複数社が入札', '電話対応を抑制', '最高額を比較'], action: '入札方式を確認' },
+  { id: 'specialist', name: '車種専門店ルート', type: '装備・改造も評価したい', score: 88, strengths: ['型式別の査定', '純正部品も評価', '希少グレード対応'], action: '専門査定を確認' },
 ]
-const buzzIdeas = [
-  "UGC投稿キャンペーン",
-  "Xで共有できるランキングカード",
-  "LINE通知で再訪導線を作る",
-  "地域/カテゴリ別LPを量産",
-  "スポンサー専用ページ"
-]
-const faqs = [
-  ['誰向けのサービスですか？', 'ニッチ比較サイトに関心があり、検索後すぐに行動したいユーザー向けです。'],
-  ['主な収益化は何ですか？', '成果報酬アフィリエイト、比較枠広告、クーポン送客、有料ランキング、レビュー分析レポートを初期導線にします。'],
-  ['SEO/AIO/LLMOでは何を狙いますか？', '地域名、カテゴリ、条件、口コミ、通知、比較、FAQを組み合わせたロングテールページを狙います。'],
-]
-
-function readArray(key) {
-  try { return JSON.parse(localStorage.getItem(key)) ?? [] } catch { return [] }
-}
+const checks = ['車検証の型式・初度登録', '走行距離と修復歴', '純正オプション・スペアキー', 'ローン残債と名義', '最低2方式の査定条件']
 
 function App() {
-  const [query, setQuery] = useState('名古屋')
-  const [category, setCategory] = useState('すべて')
-  const [saved, setSaved] = useState(() => readArray(saveKey))
-  const [posts, setPosts] = useState(() => readArray(postKey))
-  const [form, setForm] = useState({ title: '', target: '宿比較', memo: '' })
-  const categories = ['すべて', ...new Set(items.map((item) => item.category))]
+  const [area, setArea] = useState('新宿区')
+  const [modelId, setModelId] = useState('prius-60')
+  const [searched, setSearched] = useState(false)
+  const model = useMemo(() => models.find((item) => item.id === modelId) ?? models[0], [modelId])
 
-  const filtered = useMemo(() => items.filter((item) => {
-    const text = [item.title, item.area, item.category, item.summary, item.tags.join(' ')].join(' ')
-    return text.includes(query) && (category === 'すべて' || item.category === category)
-  }), [query, category])
-
-  function toggleSave(id) {
-    const next = saved.includes(id) ? saved.filter((item) => item !== id) : [...saved, id]
-    setSaved(next)
-    localStorage.setItem(saveKey, JSON.stringify(next))
-  }
-
-  function addPost(event) {
+  function compare(event) {
     event.preventDefault()
-    if (!form.title.trim() || !form.memo.trim()) return
-    const next = [{ ...form, id: crypto.randomUUID(), date: new Date().toLocaleDateString('ja-JP') }, ...posts]
-    setPosts(next)
-    localStorage.setItem(postKey, JSON.stringify(next))
-    setForm({ title: '', target: '宿比較', memo: '' })
+    setSearched(true)
+    document.querySelector('#results')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
-    <main className="app-shell">
-      <section className="hero">
-        <div>
-          <p className="eyebrow">ニッチ比較サイト</p>
-          <h1>Niche Compare Hub</h1>
-          <p className="lead">喫煙可ホテル、深夜漫画喫茶、遠征宿、レトロ店、趣味施設など狭い条件に特化した比較/レビュー/クーポンサイト。</p>
+    <main>
+      <header className="site-header">
+        <a className="brand" href="#top"><span>CAR</span> LOCAL</a>
+        <nav aria-label="メインナビゲーション"><a href="#compare">査定方法を比較</a><a href="#guide">売却ガイド</a><a href="#about">運営方針</a></nav>
+      </header>
+
+      <section className="hero" id="top">
+        <div className="hero-copy">
+          <p className="eyebrow">市町村 × 車種型式 × 車買取</p>
+          <h1>あなたの街で、<br/><em>その車に強い売り方</em>を。</h1>
+          <p className="lead">地域と車種を組み合わせ、査定方式・対応条件・確認ポイントを整理。申込前に比較できる車買取ガイドです。</p>
+          <div className="trust"><span>広告を明示</span><span>確認日を表示</span><span>型式単位で比較</span></div>
         </div>
-        <aside className="hero-panel">
-          <span>nichehikaku.jp / niche-compare-hub</span>
-          <strong>検索、UGC、通知、送客を1つの収益導線にまとめる。</strong>
-          <p>PDFアイデアの深掘り版として、初期状態からSEO/AIO/LLMO、UGC、収益導線を入れています。</p>
+        <aside className="market-card" aria-label="地域需要の参考指標">
+          <div><span>LOCAL DEMAND</span><b>更新 2026.07.20</b></div>
+          <strong>{model.demand}</strong><small>/100 参考需要指数</small>
+          <div className="spark">{[44,61,53,72,68,84,92].map((value) => <i key={value} style={{height: `${value}%`}} />)}</div>
+          <p>公開データ・掲載事業者情報・利用者報告を分けて管理します。</p>
         </aside>
       </section>
-      <section className="controls" aria-label="検索条件">
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="地域・カテゴリ・条件で検索" />
-        <select value={category} onChange={(event) => setCategory(event.target.value)}>{categories.map((item) => <option key={item}>{item}</option>)}</select>
+
+      <section className="compare-box" id="compare">
+        <div><p className="eyebrow">QUICK COMPARE</p><h2>地域と車種を選ぶ</h2></div>
+        <form onSubmit={compare}>
+          <label>市町村<select value={area} onChange={(event) => setArea(event.target.value)}>{municipalities.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>車種・型式<select value={modelId} onChange={(event) => setModelId(event.target.value)}>{models.map((item) => <option value={item.id} key={item.id}>{item.maker} {item.name}</option>)}</select></label>
+          <button>この条件で比較する</button>
+        </form>
       </section>
-      <section className="metrics">
-        <article><span>Seed records</span><strong>{items.length}</strong></article>
-        <article><span>Saved leads</span><strong>{saved.length}</strong></article>
-        <article><span>UGC reports</span><strong>{posts.length}</strong></article>
-      </section>
-      <section className="card-grid">
-        {filtered.map((item) => (
-          <article className="data-card" key={item.id}>
-            <div className="card-top"><span>{item.area} / {item.category}</span><b>{item.score}</b></div>
-            <h2>{item.title}</h2>
-            <p>{item.summary}</p>
-            <div className="tag-row">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-            <div className="route-list">{item.routes.map((route) => <span key={route}>{route}</span>)}</div>
-            <p className="revenue">収益導線: {item.revenue}</p>
-            <button type="button" onClick={() => toggleSave(item.id)}>{saved.includes(item.id) ? '保存済み' : '送客候補に保存'}</button>
-          </article>
-        ))}
-      </section>
-      <section className="split">
-        <div className="panel">
-          <h2>技術選定</h2>
-          <article><b>Frontend</b><p>Vite + React 19。静的サイトとして速く、GitHub Pagesへ載せやすい構成です。</p></article>
-          <article><b>Data</b><p>MVPは静的seed + localStorage。運用段階でSupabaseまたはCloudflare D1へ移行します。</p></article>
-          <article><b>Growth</b><p>地域LP、カテゴリLP、FAQ、llms.txt、UGC投稿、通知導線でロングテールを増やします。</p></article>
-          <article><b>収益ルート</b><p>{revenuePlans.join(' / ')}</p></article>
-          <article><b>バズ施策</b><p>{buzzIdeas.join(' / ')}</p></article>
-        </div>
-        <div className="panel">
-          <h2>UGC投稿</h2>
-          <p>口コミ、訂正、在庫、現地確認、閉店、レビュー、写真メモなどを投稿できる初期導線です。</p>
-          <form className="ugc-form" onSubmit={addPost}>
-            <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="投稿タイトル" />
-            <input value={form.target} onChange={(event) => setForm({ ...form, target: event.target.value })} placeholder="対象カテゴリ" />
-            <input value={form.memo} onChange={(event) => setForm({ ...form, memo: event.target.value })} placeholder="現地メモ・口コミ・訂正情報" />
-            <button>投稿</button>
-          </form>
-          <div className="post-list">
-            {posts.length === 0 && <p className="empty">公開後はUGCで鮮度を作ります。</p>}
-            {posts.map((post) => <article key={post.id}><b>{post.title}</b><p>{post.memo}</p><small>{post.target} / {post.date}</small></article>)}
-          </div>
+
+      <section className="results" id="results" aria-live="polite">
+        <div className="section-title"><div><p className="eyebrow">{searched ? 'YOUR COMPARISON' : 'COMPARISON SAMPLE'}</p><h2>{area}で{model.name}を売る方法</h2></div><p>{model.year} ・ {model.note}<br/>最終確認日 2026年7月20日</p></div>
+        <div className="service-grid">
+          {services.map((service, index) => <article className="service-card" key={service.id}>
+            <div className="rank"><span>比較候補 {String(index + 1).padStart(2, '0')}</span><b>{service.score}</b></div>
+            <p className="fit">{service.type}</p><h3>{service.name}</h3>
+            <ul>{service.strengths.map((item) => <li key={item}>✓ {item}</li>)}</ul>
+            <a href="#affiliate-disclosure">{service.action}<span>→</span></a>
+            <small>広告リンク接続前の比較デモです。順位は報酬額だけでは決めません。</small>
+          </article>)}
         </div>
       </section>
-      <section className="seo-section">
-        <h2>SEO / AIO / LLMO</h2>
-        <div className="seo-grid">
-          <article><b>地域ページ</b><p>駅名、市区町村、周辺施設名でページを作ります。</p></article>
-          <article><b>条件ページ</b><p>料金、営業時間、在庫、通知、口コミ、比較条件を組み合わせます。</p></article>
-          <article><b>収益ページ</b><p>予約、掲載、クーポン、アフィリエイト、スポンサー枠へ接続します。</p></article>
-        </div>
+
+      <section className="guide" id="guide">
+        <div><p className="eyebrow">BEFORE YOU SELL</p><h2>{model.name}の査定前チェック</h2><p>同じ車名でも型式・年式・グレードで査定条件が変わります。申込前に5項目を揃えると比較しやすくなります。</p></div>
+        <ol>{checks.map((item, index) => <li key={item}><b>{String(index + 1).padStart(2, '0')}</b><span>{item}</span></li>)}</ol>
       </section>
-      <section className="faq-section">
-        <h2>FAQ</h2>
-        <div className="faq-grid">{faqs.map(([q, a]) => <article key={q}><h3>{q}</h3><p>{a}</p></article>)}</div>
+
+      <section className="quality" id="about">
+        <p className="eyebrow">MODERN SPIDER QUALITY GATE</p><h2>大量生成より、公開できる根拠。</h2>
+        <div><article><b>実在関係</b><p>自治体コード、メーカー、車種、型式を正規化し、存在しない組み合わせを除外します。</p></article><article><b>根拠と鮮度</b><p>最低2件の情報源、有効な案件、確認日が揃ったページだけを公開します。</p></article><article><b>収益の透明性</b><p>広告・提携リンクを明示し、順位の評価軸とデータ更新日を掲載します。</p></article></div>
       </section>
+
+      <footer id="affiliate-disclosure"><div className="brand"><span>CAR</span> LOCAL</div><p>当サイトは広告を含む予定です。現在は比較システムのデモ版で、外部査定申込は接続していません。掲載内容は契約前に各事業者でご確認ください。</p><nav><a href="#about">運営方針</a><a href="#affiliate-disclosure">広告掲載方針</a><a href="#top">ページ上部へ</a></nav></footer>
     </main>
   )
 }

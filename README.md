@@ -1,6 +1,6 @@
-# Niche Compare Hub
+# CAR LOCAL
 
-ニッチ比較サイト
+市町村 × 車種・型式 × 車買取の比較サイト。
 
 ## Repository
 
