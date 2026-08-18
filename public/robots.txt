@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://niche-compare-hub.vercel.app/sitemap.xml
+Sitemap: https://nichehikaku.jp/sitemap.xml
